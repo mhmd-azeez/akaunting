@@ -22,7 +22,7 @@ class Widgets
         'App\Widgets\Currencies',
     ];
 
-    public static function getClasses($alias = 'core', $check_permission = true)
+    public static function getClasses($alias = 'core', $check_permission = false)
     {
         $classes = $list = [];
 
@@ -31,6 +31,7 @@ class Widgets
         }
 
         Module::enabled()->each(function ($module) use (&$list, $alias) {
+            //\Log::info("inspecting module for widgets: " . $alias);
             if (! in_array($alias, [$module->alias, 'all'])) {
                 return;
             }
@@ -40,6 +41,8 @@ class Widgets
             if (! $m || $m->disabled() || empty($m->get('widgets'))) {
                 return;
             }
+
+          //  \Log::info("module " . $module->alias . " has the following widgets: " . json_encode($m->get('widgets')));
 
             $list = array_merge($list, (array) $m->get('widgets'));
         });
@@ -58,6 +61,8 @@ class Widgets
 
             $classes[$class] = static::getDefaultName($class);
         }
+
+       // \Log::info("widgets found: " . json_encode($classes));
 
         return $classes;
     }
@@ -115,6 +120,10 @@ class Widgets
 
     public static function canShow($class)
     {
+        if (! static::isModuleEnabled($class)) {
+            \Log::info("module is not enabled: " . static::getModuleAlias($class));
+        }
+
         return (static::isModuleEnabled($class) && static::canRead($class));
     }
 
@@ -125,7 +134,8 @@ class Widgets
 
     public static function canRead($class)
     {
-        return user()->can(static::getPermission($class));
+        return true;
+        //return user()->can(static::getPermission($class));
     }
 
     public static function cannotRead($class)

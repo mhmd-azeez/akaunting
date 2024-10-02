@@ -19,8 +19,8 @@
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
-        "ext-intl": "*",
         "ext-gd": "*",
+        "ext-intl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
@@ -46,6 +46,7 @@
         "bkwld/cloner": "^3.10",
         "bugsnag/bugsnag-laravel": "^2.24",
         "doctrine/dbal": "^3.1",
+        "extism/extism": "^1.1",
         "genealabs/laravel-model-caching": "^0.13",
         "graham-campbell/markdown": "^15.0",
         "guzzlehttp/guzzle": "^7.4",
@@ -92,13 +93,19 @@
             "dont-discover": []
         },
         "installer-paths": {
-            "modules/OfflinePayments": ["akaunting/module-offline-payments"],
-            "modules/PaypalStandard": ["akaunting/module-paypal-standard"]
+            "modules/OfflinePayments": [
+                "akaunting/module-offline-payments"
+            ],
+            "modules/PaypalStandard": [
+                "akaunting/module-paypal-standard"
+            ]
         }
     },
     "autoload": {
         "psr-4": {
-            "App\\": ["app/"],
+            "App\\": [
+                "app/"
+            ],
             "Akaunting\\Module\\Commands\\": "overrides/akaunting/laravel-module/Commands/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeds\\": "database/seeds/",
@@ -156,7 +163,8 @@
         ],
         "test": [
             "composer install --prefer-dist --no-interaction --no-scripts --no-progress --no-ansi",
-            "composer dump-autoload"
+            "composer dump-autoload",
+            "composer install --prefer-dist --no-interaction --no-scripts --no-suggest --no-progress --no-ansi"
         ]
     },
     "config": {

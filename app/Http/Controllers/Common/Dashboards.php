@@ -80,6 +80,8 @@ class Dashboards extends Controller
             request()->merge(['end_date' => $date_picker_shortcuts[trans('general.date_range.this_year')]['end']]);
         }
 
+       // \Log::info('Dashboards::show() => widgets: ' . json_encode($widgets));
+
         return view('common.dashboards.show', compact('dashboard', 'widgets', 'user_dashboards', 'date_picker_shortcuts'));
     }
 
