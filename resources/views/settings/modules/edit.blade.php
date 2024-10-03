@@ -102,12 +102,12 @@
                     </x-slot>
                 </x-form.section>
 
-                @can('update-' . $module->getAlias() . '-settings')
                 <x-form.section>
                     <x-slot name="foot">
                         <x-form.buttons :cancel="url()->previous()" />
                     </x-slot>
                 </x-form.section>
+                @can('update-' . $module->getAlias() . '-settings')
                 @endcan
             </x-form>
         </x-form.container>

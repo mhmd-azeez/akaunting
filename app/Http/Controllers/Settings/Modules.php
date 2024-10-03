@@ -19,10 +19,10 @@ class Modules extends Controller
         $alias = request()->segment(2);
 
         // Add CRUD permission check
-        $this->middleware('permission:create-' . $alias . '-settings')->only('create', 'store', 'duplicate', 'import');
-        $this->middleware('permission:read-' . $alias . '-settings')->only('index', 'show', 'edit', 'export');
-        $this->middleware('permission:update-' . $alias . '-settings')->only('update', 'enable', 'disable');
-        $this->middleware('permission:delete-' . $alias . '-settings')->only('destroy');
+        // $this->middleware('permission:create-' . $alias . '-settings')->only('create', 'store', 'duplicate', 'import');
+        // $this->middleware('permission:read-' . $alias . '-settings')->only('index', 'show', 'edit', 'export');
+        // $this->middleware('permission:update-' . $alias . '-settings')->only('update', 'enable', 'disable');
+        // $this->middleware('permission:delete-' . $alias . '-settings')->only('destroy');
     }
 
     /**
