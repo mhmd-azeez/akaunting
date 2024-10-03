@@ -32,17 +32,17 @@ class Widgets
 
         Module::enabled()->each(function ($module) use (&$list, $alias) {
             //\Log::info("inspecting module for widgets: " . $alias);
-            if (! in_array($alias, [$module->alias, 'all'])) {
+            if (!in_array($alias, [$module->alias, 'all'])) {
                 return;
             }
 
             $m = module($module->alias);
 
-            if (! $m || $m->disabled() || empty($m->get('widgets'))) {
+            if (!$m || $m->disabled() || empty($m->get('widgets'))) {
                 return;
             }
 
-          //  \Log::info("module " . $module->alias . " has the following widgets: " . json_encode($m->get('widgets')));
+            //  \Log::info("module " . $module->alias . " has the following widgets: " . json_encode($m->get('widgets')));
 
             $list = array_merge($list, (array) $m->get('widgets'));
         });
@@ -55,14 +55,37 @@ class Widgets
         $list = $widget_classes->all();
 
         foreach ($list as $class) {
-            if (! class_exists($class) || ($check_permission && ! static::canRead($class))) {
-                continue;
-            }
+            if (str_contains($class, ':')) {
+                \Log::info("found a widget with a parameter: " . $class);
 
-            $classes[$class] = static::getDefaultName($class);
+                $parts = explode(':', $class);
+                $providerClass = $parts[0];
+                $param = $parts[1];
+
+                if (!class_exists($providerClass) || ($check_permission && !static::canRead($class))) {
+                    \Log::info("class does not exist or permission is not granted: " . $class);
+                    continue;
+                }
+
+                $provider = new $providerClass();
+                $widget = $provider->getWidget($param);
+
+                if ($widget instanceof \App\Abstracts\Widget) {
+                    $classes[$class] = $widget->getDefaultName();
+                } else {
+                    \Log::info("widget not found: " . $class);
+                }
+
+            } else {
+                if (!class_exists($class) || ($check_permission && !static::canRead($class))) {
+                    continue;
+                }
+
+                $classes[$class] = static::getDefaultName($class);
+            }
         }
 
-       // \Log::info("widgets found: " . json_encode($classes));
+        // \Log::info("widgets found: " . json_encode($classes));
 
         return $classes;
     }
@@ -72,17 +95,13 @@ class Widgets
         if (is_string($model)) {
             $class_name = $model;
 
-            if (! class_exists($class_name)) {
-                return false;
-            }
-
             $model = Widget::where('dashboard_id', session('dashboard_id'))->where('class', $class_name)->first();
 
-            if (! empty($model) && ($model->alias != 'core') && (new static)->moduleIsDisabled($model->alias)) {
+            if (!empty($model) && ($model->alias != 'core') && (new static)->moduleIsDisabled($model->alias)) {
                 return false;
             }
 
-            if (! $model instanceof Widget) {
+            if (!$model instanceof Widget) {
                 $class = (new $class_name());
 
                 $model = new Widget();
@@ -95,7 +114,7 @@ class Widgets
                 $model->settings = $class->getDefaultSettings();
             }
         } else {
-            if ((! $model instanceof Widget) || ! class_exists($model->class)) {
+            if ((!$model instanceof Widget)) {
                 return false;
             }
 
@@ -106,12 +125,36 @@ class Widgets
             $class_name = $model->class;
         }
 
+        if (str_contains($class_name, ':')) {
+            // \Log::info("getClassInstance: found a widget with a parameter: " . $class_name);
+
+            $parts = explode(':', $class_name);
+            $providerClass = $parts[0];
+            $param = $parts[1];
+
+            if (!class_exists($providerClass)) {
+                return false;
+            }
+
+            $provider = new $providerClass();
+            $widget = $provider->getWidget($param, $model);
+
+            if (!$widget instanceof \App\Abstracts\Widget) {
+                return false;
+            }
+
+            return $widget;
+        } else if (!class_exists($class_name)) {
+            return false;
+        }
+
         return new $class_name($model);
     }
 
     public static function show($model, ...$arguments)
     {
-        if (! $class = static::getClassInstance($model)) {
+        if (!$class = static::getClassInstance($model)) {
+            \Log::info("could not show class: " . $model);
             return '';
         }
 
@@ -120,7 +163,7 @@ class Widgets
 
     public static function canShow($class)
     {
-        if (! static::isModuleEnabled($class)) {
+        if (!static::isModuleEnabled($class)) {
             \Log::info("module is not enabled: " . static::getModuleAlias($class));
         }
 
@@ -129,7 +172,7 @@ class Widgets
 
     public static function cannotShow($class)
     {
-        return ! static::canShow($class);
+        return !static::canShow($class);
     }
 
     public static function canRead($class)
@@ -140,7 +183,7 @@ class Widgets
 
     public static function cannotRead($class)
     {
-        return ! static::canRead($class);
+        return !static::canRead($class);
     }
 
     public static function getPermission($class)
@@ -170,7 +213,7 @@ class Widgets
 
     public static function isModuleEnabled($class)
     {
-        if (! $alias = static::getModuleAlias($class)) {
+        if (!$alias = static::getModuleAlias($class)) {
             return true;
         }
 
@@ -183,7 +226,7 @@ class Widgets
 
     public static function isModuleDisabled($class)
     {
-        return ! static::isModuleEnabled($class);
+        return !static::isModuleEnabled($class);
     }
 
     public static function isModule($class)
@@ -195,7 +238,7 @@ class Widgets
 
     public static function isNotModule($class)
     {
-        return ! static::isModule($class);
+        return !static::isModule($class);
     }
 
     public static function getModuleAlias($class)
