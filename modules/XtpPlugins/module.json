@@ -1,0 +1,41 @@
+{
+    "alias": "xtp-plugins",
+    "icon": "extension",
+    "version": "1.0.0",
+    "active": 1,
+    "providers": [
+        "Modules\\XtpPlugins\\Providers\\Event",
+        "Modules\\XtpPlugins\\Providers\\Main"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": [],
+    "reports": [],
+    "widgets": [
+
+    ],
+    "settings": [
+        {
+            "type": "password",
+            "name": "xtp_token",
+            "title": "XTP Token",
+            "icon": "key",
+            "attributes": {
+                "required": "required",
+                "autocomplete": "off"
+            },
+            "rules": "required|string"
+        },
+        {
+            "type": "text",
+            "name": "extension_point_id",
+            "title": "Extension Point ID",
+            "icon": "extension",
+            "rules": "required|string",
+            "attributes": {
+                "required": "required"
+            }
+        }
+    ],
+    "extra-modules": {}
+}
