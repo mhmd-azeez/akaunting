@@ -163,10 +163,6 @@ class Widgets
 
     public static function canShow($class)
     {
-        if (!static::isModuleEnabled($class)) {
-            \Log::info("module is not enabled: " . static::getModuleAlias($class));
-        }
-
         return (static::isModuleEnabled($class) && static::canRead($class));
     }
 
