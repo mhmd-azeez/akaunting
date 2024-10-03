@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace Modules\XtpPlugins\Utils;
 
 use Akaunting\Version\Version;
 use App\Utilities\Info;
@@ -18,7 +18,7 @@ trait XtpApi
         $client = new Client(['verify' => false, 'base_uri' => static::$base_uri]);
 
         $headers['headers'] = [
-            'Authorization' => 'Bearer ' . setting('xtp-plugins.api_key'),
+            'Authorization' => 'Bearer ' . setting('xtp-plugins.xtp_token'),
             'Accept'        => 'application/json',
             'Referer'       => app()->runningInConsole() ? config('app.url') : url('/'),
             'Akaunting'     => Version::short(),
@@ -50,6 +50,7 @@ trait XtpApi
         $is_exception = (($response instanceof ConnectException) || ($response instanceof Exception) || ($response instanceof RequestException));
 
         if (!$response || $is_exception || ($response->getStatusCode() != $status_code)) {
+            \Log::error('XtpApi::getResponse(): ' . $path . ' ' . json_encode($data) . ' ' . $response->getStatusCode() . ' ' . $response->getBody());
             return false;
         }
 
@@ -82,15 +83,22 @@ trait XtpApi
 
     public static function getPluginBindings()
     {
-        $guestKey = company_id();
+        $guestKey = 'usr_01j951hz59e39vcze4j4bq8ach'; // 'ak_' . company_id(); -- hardcoded to my guest key for now
         $extensionPointId = setting('xtp-plugins.extension_point_id');
 
         $path = "extension-points/{$extensionPointId}/bindings/{$guestKey}";
 
-        $data = static::getResponseData('GET', $path);
+        $data = static::getResponseBody('GET', $path);
 
-        \Log::info('XtpApi::getPluginBindings(): ' . json_encode($data));
+        // \Log::info('XtpApi::getPluginBindings(): ' . json_encode($data) . ' for ' . $path);
 
         return $data;
+    }
+
+    public static function getPluginContentUrl($contentAddress)
+    {
+        $path = "c/{$contentAddress}";
+
+        return static::$base_uri . $path;
     }
 }

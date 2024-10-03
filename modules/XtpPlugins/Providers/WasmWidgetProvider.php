@@ -3,18 +3,20 @@
 namespace Modules\XtpPlugins\Providers;
 use App\Traits\Permissions;
 
+use Modules\XtpPlugins\Utils\XtpApi;
 use Modules\XtpPlugins\Widgets\WasmWidgets;
 use App\Abstracts\Widget;
 
 class WasmWidgetProvider extends \App\Abstracts\WidgetProvider
 {
     use Permissions;
-
-    private $path = "D:\\x\\php\\akaunting-plugins\\DashboardPlugin\\dist\\plugin.wasm";
+    use XtpApi;
 
     public function getWidgets(): array
     {
-        $plugin = \Modules\XtpPlugins\Utils\XtpPlugin::createPlugin($this->path);
+        $url = $this->getPluginUrl();
+
+        $plugin = \Modules\XtpPlugins\Utils\XtpPlugin::createPlugin($url);
         $response = $plugin->call('widgets', '');
 
         $widgets = json_decode($response, true);
@@ -38,6 +40,23 @@ class WasmWidgetProvider extends \App\Abstracts\WidgetProvider
 
     public function getWidget(string $widgetName, \App\Models\Common\Widget $model = null): Widget
     {
-        return new WasmWidgets($this->path, $widgetName, $model);
+        return new WasmWidgets($this->getPluginUrl(), $widgetName, $model);
+    }
+
+    private function getPluginUrl()
+    {
+        $bindings = $this->getPluginBindings();
+        if (empty($bindings)) {
+            \Log::info('XtpPlugins::getWidgets() no bindings found');
+            return [];
+        }
+
+        $binding = reset($bindings);
+
+        $url = $this->getPluginContentUrl($binding->contentAddress);
+
+        \Log::info('XtpPlugins::getWidgets() url: ' . $url);
+
+        return $url;
     }
 }
