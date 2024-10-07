@@ -12,6 +12,9 @@ use Extism\Manifest\ByteArrayWasmSource;
 class XtpPlugin
 {
     public static function createPlugin(string $url): \Extism\Plugin {
+
+        $start = microtime(true);
+
         $db_query_run = new HostFunction('db_query_run', [\Extism\ExtismValType::I64], [\Extism\ExtismValType::I64], function (string $json) {
             $input = json_decode($json, true);
 
@@ -37,14 +40,25 @@ class XtpPlugin
         $manifest = new Manifest($wasm);
         $plugin = new Plugin($manifest, true, [$db_query_run, $db_prefix_get]);
 
+        $end = microtime(true);
+        $execution_time = ($end - $start);
+
+        \Log::info('Creating plugin took ' . $execution_time . ' seconds');
+
+
         return $plugin;
     }
 
     private static function getCachedWasmSource(string $url): ByteArrayWasmSource
     {
-        $cacheKey = 'wasm_file_' . md5($url);
+        // print clock time in seconds
 
-        return Cache::remember($cacheKey, now()->addDays(30), function () use ($url) {
+        $now = microtime(true);
+
+        $cacheKey = 'wasm_file_' . md5($url);
+        $miss = false;
+
+        $wasm = Cache::remember($cacheKey, now()->addDays(30), function () use ($url, &$miss) {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . setting('xtp-plugins.xtp_token'),
             ])->withOptions([
@@ -52,6 +66,7 @@ class XtpPlugin
             ])->get($url);
 
             \Log::info('fetching WASM file from URL: ' . $url);
+            $miss = true;
 
             if ($response->successful()) {
                 return new ByteArrayWasmSource($response->body());
@@ -59,6 +74,12 @@ class XtpPlugin
                 throw new \Exception("Failed to fetch WASM file from URL: $url");
             }
         });
+
+        $end = microtime(true);
+        $execution_time = ($end - $now);
+
+        \Log::info('Fetching plugin took ' . $execution_time . ' seconds. Cache miss: ' . ($miss ? 'true' : 'false'));
+        return $wasm;
     }
 
 }

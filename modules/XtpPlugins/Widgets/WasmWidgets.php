@@ -21,6 +21,8 @@ class WasmWidgets extends Widget
     {
        // \Log::info('WasmWidgets::show(): ' . $this->default_name);
 
+        $start = microtime(true);
+
         $plugin = \Modules\XtpPlugins\Utils\XtpPlugin::createPlugin($this->wasmPath);
 
         $response = $plugin->call('show', json_encode([
@@ -31,6 +33,10 @@ class WasmWidgets extends Widget
 
         $data = get_object_vars($response->data);
         //\Log::info('WasmWidgets::show() data: ' . json_encode($data));
+
+        $end = microtime(true);
+
+        \Log::info('WasmWidgets::show() time: ' . ($end - $start) . ' seconds');
 
         return $this->view(name: $response->view, data: $data);
     }
