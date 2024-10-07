@@ -38,6 +38,10 @@ class WasmWidgets extends Widget
 
         \Log::info('WasmWidgets::show() time: ' . ($end - $start) . ' seconds');
 
-        return $this->view(name: $response->view, data: $data);
+        if (request_is_api()) {
+            return $data;
+        }
+
+        return \Blade::render($response->view, array_merge(['class' => $this], (array) $data));
     }
 }
