@@ -14,7 +14,7 @@ class WasmWidgetProvider extends \App\Abstracts\WidgetProvider
 
     public function getWidgets(): array
     {
-        $url = $this->getPluginUrl();
+        $url = $this->getPluginContentAddress();
 
         $plugin = \Modules\XtpPlugins\Utils\XtpPlugin::createPlugin($url);
         $response = $plugin->call('widgets', '');
@@ -40,15 +40,15 @@ class WasmWidgetProvider extends \App\Abstracts\WidgetProvider
 
     public function getWidget(string $widgetName, \App\Models\Common\Widget $model = null): Widget
     {
-        return new WasmWidgets($this->getPluginUrl(), $widgetName, $model);
+        return new WasmWidgets($this->getPluginContentAddress(), $widgetName, $model);
     }
 
-    private function getPluginUrl()
+    private function getPluginContentAddress()
     {
         $bindings = $this->getPluginBindings();
         if (empty($bindings)) {
             \Log::info('XtpPlugins::getWidgets() no bindings found');
-            return [];
+            return null;
         }
 
         $binding = reset($bindings);
