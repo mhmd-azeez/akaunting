@@ -19,7 +19,7 @@ class WasmWidgets extends Widget
 
     public function show()
     {
-        \Log::info('WasmWidgets::show(): ' . $this->default_name);
+       // \Log::info('WasmWidgets::show(): ' . $this->default_name);
 
         $plugin = \Modules\XtpPlugins\Utils\XtpPlugin::createPlugin($this->wasmPath);
 

@@ -55,7 +55,7 @@ class WasmWidgetProvider extends \App\Abstracts\WidgetProvider
 
         $url = $this->getPluginContentUrl($binding->contentAddress);
 
-        \Log::info('XtpPlugins::getWidgets() url: ' . $url);
+       // \Log::info('XtpPlugins::getWidgets() url: ' . $url);
 
         return $url;
     }

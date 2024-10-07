@@ -33,8 +33,7 @@ class XtpPlugin
             return $db_prefix;
         });
 
-        $wasm = new UrlWasmSource($url);
-        $wasm->headers->Authorization = 'Bearer ' . setting('xtp-plugins.xtp_token');
+        $wasm = XtpPlugin::getCachedWasmSource($url);
         $manifest = new Manifest($wasm);
         $plugin = new Plugin($manifest, true, [$db_query_run, $db_prefix_get]);
 
@@ -48,6 +47,8 @@ class XtpPlugin
         return Cache::remember($cacheKey, now()->addDays(30), function () use ($url) {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . setting('xtp-plugins.xtp_token'),
+            ])->withOptions([
+                'verify' => false,
             ])->get($url);
 
             \Log::info('fetching WASM file from URL: ' . $url);
