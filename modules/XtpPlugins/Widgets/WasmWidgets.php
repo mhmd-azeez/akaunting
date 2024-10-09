@@ -3,19 +3,20 @@
 namespace Modules\XtpPlugins\Widgets;
 
 use App\Abstracts\Widget;
+use Extism\Plugin;
 
 class WasmWidgets extends Widget
 {
-    public function __construct(string $wasmPath, string $widgetName, $model = null)
+    public function __construct(Plugin $plugin, string $widgetName, $model = null)
     {
         parent::__construct($model);
 
-        $this->wasmPath = $wasmPath;
+        $this->plugin = $plugin;
         $this->default_name = $widgetName;
     }
 
     public $default_name;
-    private $wasmPath;
+    private $plugin;
 
     public function show()
     {
@@ -23,9 +24,7 @@ class WasmWidgets extends Widget
 
         $start = microtime(true);
 
-        $plugin = \Modules\XtpPlugins\Utils\XtpPlugin::createPlugin($this->wasmPath);
-
-        $response = $plugin->call('show', json_encode([
+        $response = $this->plugin->call('showWidget', json_encode([
             'widgetName' => $this->default_name,
         ]));
 
