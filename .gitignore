@@ -95,3 +95,5 @@ modules/*
 !modules/.gitkeep
 .laravelstatsrc
 .DS_Store
+
+!modules/XtpPlugins
