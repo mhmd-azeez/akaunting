@@ -13,20 +13,28 @@ class XtpPluginService
 {
     use XtpApi;
 
-    public function createPlugin(string $url): \Extism\Plugin {
+    public function createPlugin(string $url): \Extism\Plugin
+    {
 
         $start = microtime(true);
 
         $db_query_run = new HostFunction('db_query_run', [\Extism\ExtismValType::I64], [\Extism\ExtismValType::I64], function (string $json) {
-            $input = json_decode($json, true);
+            try {
+                $input = json_decode($json, true);
 
-            $sql = $input['sql'];
-            $bindings = (array) ($input['bindings'] ?? []);
-            $result = \DB::select($sql, $bindings);
+                $sql = $input['sql'];
+                $bindings = (array) ($input['bindings'] ?? []);
+                $result = \DB::select($sql, $bindings);
 
-            $response = [
-                'rows' => $result,
-            ];
+                $response = [
+                    'rows' => $result,
+                ];
+            } catch (\Exception $e) {
+                \Log::error('Error in db_query_run: ' . $e->getMessage());
+                $response = [
+                    'error' => $e->getMessage(),
+                ];
+            }
 
             return json_encode($response);
         });
@@ -59,8 +67,8 @@ class XtpPluginService
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . env('XTP_API_KEY'),
             ])->withOptions([
-                'verify' => false,
-            ])->get($url);
+                        'verify' => false,
+                    ])->get($url);
 
             if ($response->successful()) {
                 return new ByteArrayWasmSource($response->body());

@@ -53,8 +53,21 @@ class CompanyMadeCurrentListener
 
     private function handlePluginEvent($plugin, string $eventName, $eventData)
     {
+        $model = $eventData;
+
+        // normalize eloquent model
+        if (!is_object($model)) {
+            if (!is_null($model['model'])) {
+                $model = $model['model'];
+            } else {
+                \Log::error('event model is not an object: ' . print_r($model, true));
+
+                return;
+            }
+        }
+
         $response = json_decode($plugin->call('handleEvent', json_encode([
-            'event' => $eventData,
+            'event' => $model,
             'eventName' => $eventName
         ])));
 
@@ -65,6 +78,16 @@ class CompanyMadeCurrentListener
 
     private function updateModelAttributes($model, $responseEvent): void
     {
+        if (!is_object($model)) {
+            if (!is_null($model['model'])) {
+                $model = $model['model'];
+            } else {
+                \Log::error('event model is not an object: ' . print_r($model, true));
+
+                return;
+            }
+        }
+
         $fillable = $model->getFillable();
         foreach ($fillable as $attribute) {
             if (isset($responseEvent->$attribute)) {
