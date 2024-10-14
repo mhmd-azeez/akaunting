@@ -53,22 +53,14 @@ class XtpPluginService
 
     private function getCachedWasmSource(string $url): ByteArrayWasmSource
     {
-        // print clock time in seconds
-
-        $now = microtime(true);
-
         $cacheKey = 'wasm_file_' . md5($url);
-        $miss = false;
 
         $wasm = Cache::remember($cacheKey, now()->addDays(30), function () use ($url, &$miss) {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . setting('xtp-plugins.xtp_token'),
+                'Authorization' => 'Bearer ' . env('XTP_API_KEY'),
             ])->withOptions([
                 'verify' => false,
             ])->get($url);
-
-            //\Log::info('fetching WASM file from URL: ' . $url);
-            $miss = true;
 
             if ($response->successful()) {
                 return new ByteArrayWasmSource($response->body());
@@ -77,11 +69,12 @@ class XtpPluginService
             }
         });
 
-        $end = microtime(true);
-        $execution_time = ($end - $now);
-
-        //\Log::info('Fetching plugin took ' . $execution_time . ' seconds. Cache miss: ' . ($miss ? 'true' : 'false'));
         return $wasm;
+    }
+
+    public function isXtpEnabled(): bool
+    {
+        return !is_null(env('XTP_API_KEY')) && !is_null(env('XTP_EXTENSION_POINT_ID'));
     }
 
     public function getPluginUrl()
@@ -95,8 +88,6 @@ class XtpPluginService
         $binding = reset($bindings);
 
         $url = $this->getPluginContentUrl($binding->contentAddress);
-
-        //\Log::info('XtpPlugins::getWidgets() url: ' . $url);
 
         return $url;
     }

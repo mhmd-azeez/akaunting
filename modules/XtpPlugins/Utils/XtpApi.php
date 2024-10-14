@@ -18,7 +18,7 @@ trait XtpApi
         $client = new Client(['verify' => false, 'base_uri' => static::$base_uri]);
 
         $headers['headers'] = [
-            'Authorization' => 'Bearer ' . setting('xtp-plugins.xtp_token'),
+            'Authorization' => 'Bearer ' . env('XTP_API_KEY'),
             'Accept'        => 'application/json',
             'Referer'       => app()->runningInConsole() ? config('app.url') : url('/'),
             'Akaunting'     => Version::short(),
@@ -83,14 +83,12 @@ trait XtpApi
 
     public static function getPluginBindings()
     {
-        $guestKey = 'usr_01j951hz59e39vcze4j4bq8ach'; // 'ak_' . company_id(); -- hardcoded to my guest key for now
-        $extensionPointId = setting('xtp-plugins.extension_point_id');
+        $guestKey = 'ak_' . company_id();
+        $extensionPointId = env('XTP_EXTENSION_POINT_ID');
 
         $path = "extension-points/{$extensionPointId}/bindings/{$guestKey}";
 
         $data = static::getResponseBody('GET', $path);
-
-        // \Log::info('XtpApi::getPluginBindings(): ' . json_encode($data) . ' for ' . $path);
 
         return $data;
     }

@@ -20,10 +20,6 @@ class WasmWidgets extends Widget
 
     public function show()
     {
-       // \Log::info('WasmWidgets::show(): ' . $this->default_name);
-
-        $start = microtime(true);
-
         $response = $this->plugin->call('showWidget', json_encode([
             'widgetName' => $this->default_name,
         ]));
@@ -31,11 +27,6 @@ class WasmWidgets extends Widget
         $response = json_decode($response, false);
 
         $data = get_object_vars($response->data);
-        //\Log::info('WasmWidgets::show() data: ' . json_encode($data));
-
-        $end = microtime(true);
-
-        \Log::info('WasmWidgets::show() time: ' . ($end - $start) . ' seconds');
 
         if (request_is_api()) {
             return $data;

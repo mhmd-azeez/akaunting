@@ -28,26 +28,15 @@ class CompanyMadeCurrentListener
     private function registerAdditionalListener()
     {
         $service = new XtpPluginService();
+        if (!$service->isXtpEnabled()) {
+            return;
+        }
+
         $url = $service->getPluginUrl();
 
         $plugin = $service->createPlugin($url);
 
         $listeners = json_decode($plugin->call('getEventListeners', ''), true);
-
-        //\Log::info('registering listeners: ' . json_encode($listeners));
-
-        // Event::listen('eloquent.saving: App\Models\Document\Document', function ($eventName, $event) {
-
-        //     \Log::info('AAAAAAAAAAAA event: ' . $eventName . ', ' . json_encode($event));
-
-        //     return $event;
-        // });
-
-        // Event::listen('eloquent.saving: App\Models\Document\Document', function ($event, $model) {
-        //     \Log::info('AAAAAAAAAAAA event: ' . $event . ', ' . json_encode($model));
-
-        //     return true;
-        // });
 
         foreach ($listeners as $listener) {
             if (str_contains($listener, '*')) {

@@ -15,20 +15,22 @@ class WasmWidgetProvider extends \App\Abstracts\WidgetProvider
     public function getWidgets(): array
     {
         $service = new XtpPluginService();
+
+        if (!$service->isXtpEnabled()) {
+            return [];
+        }
+
         $url = $service->getPluginUrl();
         $plugin = $service->createPlugin($url);
         $response = $plugin->call('getWidgets', '');
 
         $widgets = json_decode($response, true);
 
-        //\Log::info('XtpPlugins::getWidgets() widgets: ' . json_encode($widgets));
-
         $permissions = [];
         foreach ($widgets as $widget) {
             $name = \App\Utilities\Widgets::getPermission('Modules\\XtpPlugins\\Providers\\WasmWidgetProvider:' . $widget);
             $name = str_replace('read-', '', $name);
 
-            //\Log::info('XtpPlugins::getWidgets() widget: ' . $widget . ' permission: ' . $name);
             $permissions[$name] = 'r';
         }
 

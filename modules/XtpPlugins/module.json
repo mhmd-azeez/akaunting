@@ -14,28 +14,6 @@
     "widgets": [
 
     ],
-    "settings": [
-        {
-            "type": "password",
-            "name": "xtp_token",
-            "title": "XTP Token",
-            "icon": "key",
-            "attributes": {
-                "required": "required",
-                "autocomplete": "off"
-            },
-            "rules": "required|string"
-        },
-        {
-            "type": "text",
-            "name": "extension_point_id",
-            "title": "Extension Point ID",
-            "icon": "extension",
-            "rules": "required|string",
-            "attributes": {
-                "required": "required"
-            }
-        }
-    ],
+    "settings": [],
     "extra-modules": {}
 }
